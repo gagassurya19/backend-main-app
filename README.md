@@ -1,14 +1,14 @@
 # KASEP Backend API
 
-Backend REST API untuk aplikasi KASEP (Kesehatan Kulit Analisis dan Prediksi) yang menggunakan Hapi.js, PostgreSQL, Prisma ORM, dan TensorFlow.js untuk deteksi dan analisis gambar kulit.
+Backend REST API untuk aplikasi KASEP (Kalori Resep) yang menggunakan Hapi.js, PostgreSQL, Prisma ORM, dan TensorFlow.js untuk deteksi dan analisis gambar bahan makanan untuk rekomendasi resep.
 
 ## 🚀 Fitur
 
 - **Autentikasi & Autorisasi**: JWT-based authentication
 - **User Management**: Registrasi, login, profile management
-- **ML Prediction**: Analisis gambar kulit menggunakan model TensorFlow
+- **ML Prediction**: Analisis gambar bahan makanan menggunakan model TensorFlow
 - **Image Processing**: Upload, resize, dan optimasi gambar
-- **Health Tips**: Manajemen tips kesehatan kulit
+- **Health Tips**: Rekomendasi resep sehat
 - **Database**: PostgreSQL dengan Prisma ORM
 
 ## 🛠️ Teknologi
@@ -195,22 +195,6 @@ fetch('/predict', {
   body: formData
 });
 ```
-
-## 🤖 Machine Learning
-
-API menggunakan TensorFlow.js untuk menjalankan model prediksi skin condition. Model yang didukung:
-
-- **Input**: Gambar 224x224 pixels
-- **Output**: Klasifikasi kondisi kulit + confidence score
-- **Format**: TensorFlow.js model (model.json + weights)
-
-### Klasifikasi yang Didukung:
-- Acne
-- Eczema
-- Melanoma
-- Psoriasis
-- Rosacea
-- Healthy Skin
 
 ## 🗄️ Database Schema
 
