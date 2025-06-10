@@ -6,8 +6,12 @@ require('dotenv').config();
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
-const predictionRoutes = require('./routes/prediction');
-const healthTipRoutes = require('./routes/healthTip');
+const bmiRoutes = require('./routes/bmi');
+const receiptRoutes = require('./routes/receipt');
+const historyRoutes = require('./routes/history');
+const idealTargetsRoutes = require('./routes/idealTargets');
+// const predictionRoutes = require('./routes/prediction'); // Keep if still needed
+// const healthTipRoutes = require('./routes/healthTip'); // Keep if still needed
 
 // Import database
 const { PrismaClient } = require('@prisma/client');
@@ -41,11 +45,17 @@ const init = async () => {
     return h.continue;
   });
 
-  // Register routes
+  // Register CRUD routes
   server.route(authRoutes);
   server.route(userRoutes);
-  server.route(predictionRoutes);
-  server.route(healthTipRoutes);
+  server.route(bmiRoutes);
+  server.route(receiptRoutes);
+  server.route(historyRoutes);
+  server.route(idealTargetsRoutes);
+  
+  // Keep existing routes if they're still needed
+  // server.route(predictionRoutes);
+  // server.route(healthTipRoutes);
 
   // Health check endpoint
   server.route({
@@ -55,7 +65,15 @@ const init = async () => {
       return {
         message: 'KASEP Main Backend API',
         status: 'running',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        endpoints: {
+          auth: '/auth/*',
+          users: '/users, /user/*',
+          bmi: '/bmi/*',
+          receipts: '/receipts/*',
+          history: '/history/*',
+          idealTargets: '/ideal-targets/*'
+        }
       };
     }
   });
@@ -76,6 +94,13 @@ const init = async () => {
   await server.start();
   console.log('Server running on %s', server.info.uri);
   console.log('Environment:', process.env.NODE_ENV);
+  console.log('Available endpoints:');
+  console.log('- Auth: /auth/*');
+  console.log('- Users: /users, /user/*');
+  console.log('- BMI Records: /bmi/*');
+  console.log('- Receipts: /receipts/*');
+  console.log('- History: /history/*');
+  console.log('- Ideal Targets: /ideal-targets/*');
 };
 
 process.on('unhandledRejection', (err) => {

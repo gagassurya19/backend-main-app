@@ -19,6 +19,7 @@ const authenticate = async (request, h) => {
 };
 
 module.exports = [
+  // Get current user profile
   {
     method: 'GET',
     path: '/user/profile',
@@ -32,6 +33,8 @@ module.exports = [
       }
     }
   },
+  
+  // Update current user profile
   {
     method: 'PUT',
     path: '/user/profile',
@@ -43,10 +46,58 @@ module.exports = [
           authorization: Joi.string().required()
         }).unknown(),
         payload: Joi.object({
-          fullName: Joi.string().min(2),
-          age: Joi.number().integer().min(1).max(150),
-          calories_now: Joi.number().min(0),
-          calories_target: Joi.number().min(0)
+          userAlias: Joi.string().min(2),
+          username: Joi.string().min(2),
+          firstName: Joi.string().min(1),
+          lastName: Joi.string().min(1),
+          birthDate: Joi.date(),
+          gender: Joi.string().valid('male', 'female'),
+          height: Joi.number().integer().min(50).max(300),
+          weight: Joi.number().integer().min(20).max(500),
+          activityLevel: Joi.string().valid('sedentary', 'light', 'moderate', 'active', 'very_active')
+        })
+      }
+    }
+  },
+  
+  // Get all users (admin)
+  {
+    method: 'GET',
+    path: '/users',
+    handler: userHandler.getAllUsers,
+    options: {
+      validate: {
+        query: Joi.object({
+          page: Joi.number().integer().min(1).default(1),
+          limit: Joi.number().integer().min(1).max(100).default(10)
+        })
+      }
+    }
+  },
+  
+  // Get user by ID
+  {
+    method: 'GET',
+    path: '/users/{id}',
+    handler: userHandler.getUserById,
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.string().uuid().required()
+        })
+      }
+    }
+  },
+  
+  // Delete user by ID
+  {
+    method: 'DELETE',
+    path: '/users/{id}',
+    handler: userHandler.deleteUser,
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.string().uuid().required()
         })
       }
     }
