@@ -303,8 +303,17 @@ const deleteBMIRecord = async (request, h) => {
     const { prisma } = request;
     const { id } = request.params;
 
-    await prisma.bMIRecord.delete({
-      where: { id }
+    // Delete in a transaction to ensure data consistency
+    await prisma.$transaction(async (tx) => {
+      // First, delete any related IdealTargets
+      await tx.idealTargets.deleteMany({
+        where: { bmiRecordId: id }
+      });
+
+      // Then delete the BMI record
+      await tx.bMIRecord.delete({
+        where: { id }
+      });
     });
 
     return h.response({
