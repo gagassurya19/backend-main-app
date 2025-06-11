@@ -1,64 +1,162 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DIRECT_URL")
 }
 
-model User {
-  id              String       @id @default(cuid())
-  email           String       @unique
-  password        String
-  fullName        String?
-  avatar          String?
-  age             Int?         // ganti jika kamu ingin age sebagai angka
-  calories_now    Float?
-  calories_target Float?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-
-  // Relations
-  predictions     Prediction[]
-
-  @@map("users")
+enum Gender {
+  male
+  female
 }
 
-model Prediction {
-  id          String   @id @default(cuid())
-  imageUrl    String
-  result      String
-  confidence  Float
-  suggestions String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum ActivityLevel {
+  sedentary
+  light
+  moderate
+  active
+  very_active
+}
 
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum AuthProvider {
+  local // sign up pakai email/password biasa
+  google
+  facebook
+  // bisa ditambah provider lain sesuai kebutuhan
+}
 
-  @@map("predictions")
+model UserProfile {
+  id            String         @id @default(uuid())
+  userAlias     String         @unique
+  email         String         @unique
+  username      String?         @unique
+  password      String? // nullable, karena user Google bisa tanpa password
+  avatar        String?
+  firstName     String
+  lastName      String
+  birthDate     DateTime?
+  gender        Gender?
+  height        Int?
+  weight        Int?
+  targetCalories Int?
+  activityLevel ActivityLevel?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // OAuth fields
+  authProvider AuthProvider @default(local)
+  providerId   String? // user id dari provider OAuth, misal Google user id
+  // providerToken String?   // optional: token jika perlu disimpan
+
+  bmiRecords BMIRecord[]
+  History    History[]
+
+  @@unique([authProvider, providerId])
+}
+
+model BMIRecord {
+  id             String        @id @default(uuid())
+  date           DateTime
+  height         Int
+  weight         Int
+  age            Int
+  gender         Gender
+  activityLevel  ActivityLevel
+  bmi            Float
+  category       String
+  healthStatus   String
+  targetCalories Int
+  hasGoals       Boolean
+
+  userId      String
+  userProfile UserProfile @relation(fields: [userId], references: [id])
+
+  idealTargets IdealTargets?
+}
+
+model IdealTargets {
+  id             String @id @default(uuid())
+  weightRange    String
+  targetWeight   Int
+  targetBMI      String
+  targetCalories Int
+  timeEstimate   String
+
+  bmiRecord   BMIRecord @relation(fields: [bmiRecordId], references: [id])
+  bmiRecordId String    @unique
+}
+
+model Receipt {
+  id            String  @id @default(uuid())
+  judul         String  @unique
+  gambar        String
+  deskripsi     String? @db.VarChar(500) // Deskripsi makanan
+  labelBahan    String // JSON string
+  metodeMemasak String // JSON string
+  kalori        Float
+  protein       Float?
+  lemak         Float?
+  karbohidrat   Float?
+
+  ingredients Ingredient[]
+  steps       Step[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  History   History[]
+}
+
+model Ingredient {
+  id        String @id @default(uuid())
+  receiptId String
+  bahan     String
+
+  receipt Receipt @relation(fields: [receiptId], references: [id])
+
+  @@index([receiptId])
+}
+
+model Step {
+  id          String @id @default(uuid())
+  receiptId   String
+  stepNumber  Int
+  description String
+
+  receipt Receipt     @relation(fields: [receiptId], references: [id])
+  images  StepImage[]
+
+  @@unique([receiptId, stepNumber])
+  @@index([receiptId])
+}
+
+model StepImage {
+  id     String @id @default(uuid())
+  stepId String
+  url    String
+  order  Int
+
+  step Step @relation(fields: [stepId], references: [id])
+
+  @@index([stepId])
+}
+
+model History {
+  id             String   @id @default(uuid())
+  userId         String
+  receiptId      String
+  detectedLabels String // JSON string dari bahan-bahan hasil deteksi ML
+  photoUrl       String? // jika kamu menyimpan gambar hasil deteksi
+  selectedAt     DateTime @default(now())
+  category       String? // contoh: "Sarapan", "Makan Siang", dst
+  notes          String? // opsional: catatan user
+  bahanUtama     String? // JSON string: bahan cocok dengan resep
+  bahanKurang    String? // JSON string: bahan yang tidak tersedia
+
+  user    UserProfile @relation(fields: [userId], references: [id])
+  receipt Receipt     @relation(fields: [receiptId], references: [id])
+
   @@index([userId])
+  @@index([receiptId])
 }
-
-model HealthTip {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  category  String
-  imageUrl  String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("health_tips")
-}
-
