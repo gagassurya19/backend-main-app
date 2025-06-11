@@ -3,13 +3,29 @@
 
   const register = async (request, h) => {
     try {
-      const { email, password, fullName } = request.payload;
+      const { email, password, fullName, birthDate, gender } = request.payload;
       const { prisma } = request;
 
       // Split fullName into firstName and lastName
       const nameParts = fullName.trim().split(' ');
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Check if birthDate is a valid date
+      if (!birthDate || isNaN(new Date(birthDate).getTime())) {
+        return h.response({
+          status: 'fail',
+          message: 'Invalid birth date'
+        }).code(400);
+      }
+
+      // Check if gender is valid
+      if (!['male', 'female'].includes(gender)) {
+        return h.response({
+          status: 'fail',
+          message: 'Invalid gender'
+        }).code(400);
+      }
 
       // Generate userAlias and username from email or name
       const emailPrefix = email.split('@')[0];
@@ -65,7 +81,9 @@
           firstName,
           lastName,
           userAlias: finalUserAlias,
-          username: finalUsername
+          username: finalUsername,
+          birthDate,
+          gender
         },
         select: {
           id: true,
@@ -74,7 +92,9 @@
           lastName: true,
           userAlias: true,
           username: true,
-          createdAt: true
+          createdAt: true,
+          birthDate: true,
+          gender: true
         }
       });
 

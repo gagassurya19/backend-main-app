@@ -15,6 +15,7 @@ const getProfile = async (request, h) => {
         gender: true,
         height: true,
         weight: true,
+        targetCalories: true,
         activityLevel: true,
         authProvider: true,
         createdAt: true,

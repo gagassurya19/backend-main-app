@@ -54,7 +54,7 @@ const createBMIRecord = async (request, h) => {
       age--;
     }
 
-    // Use transaction to ensure both BMI record and ideal targets are created together
+    // Use transaction to ensure BMI record, ideal targets, and user profile update are created together
     const result = await prisma.$transaction(async (tx) => {
       // Create BMI record first
       const bmiRecord = await tx.bMIRecord.create({
@@ -71,6 +71,17 @@ const createBMIRecord = async (request, h) => {
           targetCalories,
           hasGoals,
           userId: auth.userId
+        }
+      });
+
+      // Update UserProfile with latest height, weight, and activityLevel
+      await tx.userProfile.update({
+        where: { id: auth.userId },
+        data: {
+          height,
+          weight,
+          activityLevel,
+          targetCalories
         }
       });
 

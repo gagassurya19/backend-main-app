@@ -11,7 +11,9 @@ module.exports = [
         payload: Joi.object({
           email: Joi.string().email().required(),
           password: Joi.string().min(6).required(),
-          fullName: Joi.string().min(2).required()
+          fullName: Joi.string().min(2).required(),
+          birthDate: Joi.date().required(),
+          gender: Joi.string().valid('male', 'female').required(),
         })
       }
     }
