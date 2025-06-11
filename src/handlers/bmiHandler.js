@@ -15,8 +15,6 @@ const createBMIRecord = async (request, h) => {
       date, 
       height, 
       weight, 
-      age, 
-      gender, 
       activityLevel, 
       bmi, 
       category, 
@@ -25,6 +23,36 @@ const createBMIRecord = async (request, h) => {
       hasGoals, 
       idealTargets 
     } = request.payload;
+
+    // Fetch user profile to get gender and birthDate
+    const userProfile = await prisma.userProfile.findUnique({
+      where: { id: auth.userId },
+      select: { gender: true, birthDate: true }
+    });
+
+    if (!userProfile) {
+      return h.response({
+        status: 'error',
+        message: 'User profile not found'
+      }).code(404);
+    }
+
+    if (!userProfile.gender || !userProfile.birthDate) {
+      return h.response({
+        status: 'error',
+        message: 'User profile must have gender and birth date set'
+      }).code(400);
+    }
+
+    // Calculate age from birth date
+    const today = new Date();
+    const birthDate = new Date(userProfile.birthDate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
 
     // Use transaction to ensure both BMI record and ideal targets are created together
     const result = await prisma.$transaction(async (tx) => {
@@ -35,7 +63,7 @@ const createBMIRecord = async (request, h) => {
           height,
           weight,
           age,
-          gender,
+          gender: userProfile.gender,
           activityLevel,
           bmi,
           category,
