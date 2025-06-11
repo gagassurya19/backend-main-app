@@ -34,8 +34,6 @@ module.exports = [
           date: Joi.date().required(),
           height: Joi.number().integer().min(50).max(300).required(),
           weight: Joi.number().integer().min(20).max(500).required(),
-          age: Joi.number().integer().min(1).max(150).required(),
-          gender: Joi.string().valid('male', 'female').required(),
           activityLevel: Joi.string().valid('sedentary', 'light', 'moderate', 'active', 'very_active').required(),
           bmi: Joi.number().min(10).max(50).required(),
           category: Joi.string().required(),
