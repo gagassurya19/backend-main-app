@@ -1,0 +1,43 @@
+services:
+  kasep-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kasep-backend-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - HOST=0.0.0.0
+      # Database URLs (using external Supabase)
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DIRECT_URL}
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      # Upload Configuration
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE}
+      - UPLOAD_DIR=uploads
+    volumes:
+      # Persist uploaded files
+      - uploads_data:/app/uploads
+      # Optional: Mount logs if your app writes logs to a specific directory
+      - ./logs:/app/logs
+    networks:
+      - kasep-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { hostname: 'localhost', port: 8080, path: '/', timeout: 2000 }; const req = http.request(options, (res) => process.exit(res.statusCode === 200 ? 0 : 1)); req.on('error', () => process.exit(1)); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  uploads_data:
+    driver: local
+
+networks:
+  kasep-network:
+    driver: bridge 

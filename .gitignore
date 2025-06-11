@@ -82,3 +82,34 @@ node_modules
 .env
 
 /generated/prisma
+
+# Security - Private keys and certificates (NEVER commit these!)
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+kasep.pem
+
+# Deployment scripts (optional - comment out if you want to commit them)
+deploy-to-ec2.sh
+deploy.sh
+setup-cloudflare.sh
+setup-ngrok.sh
+setup-caddy-https.sh
+test-api.sh
+update-deployment.sh
+
+# Docker (optional - comment out if you want to commit them)
+# Dockerfile
+# docker-compose.yml
+# .dockerignore
+
+# Documentation (optional - comment out if you want to commit them)
+DEPLOYMENT.md
+README.md
+
+# Temporary deployment files
+temp-deploy/
+temp-update/
