@@ -11,9 +11,24 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
+    "db:seed": "node prisma/seed.js",
+    "db:seed:clear": "node prisma/seed.js clear",
+    "db:seed:recipes": "node prisma/seed-with-recipes.js",
+    "db:seed:recipes:clear": "node prisma/seed-with-recipes.js clear",
+    "db:backup": "node prisma/backup.js backup",
+    "db:restore": "node prisma/backup.js restore",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["api", "backend", "hapi", "prisma", "postgresql", "machine-learning", "tensorflow", "skin-analysis"],
+  "keywords": [
+    "api",
+    "backend",
+    "hapi",
+    "prisma",
+    "postgresql",
+    "machine-learning",
+    "tensorflow",
+    "skin-analysis"
+  ],
   "author": "Gagas Surya Laksana",
   "license": "ISC",
   "dependencies": {
@@ -27,7 +42,8 @@
     "dotenv": "^16.5.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
-    "sharp": "^0.34.2"
+    "sharp": "^0.34.2",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",
