@@ -96,127 +96,12 @@ const getTargetCalories = (weight, height, age, gender, activityLevel, bmi) => {
   }
 };
 
-/**
- * Calculate ideal targets for weight management
- * @param {number} height - Height in centimeters
- * @param {number} weight - Current weight in kilograms
- * @param {string} activityLevel - Activity level key
- * @param {string} gender - 'male' or 'female'
- * @param {number} age - Age in years
- * @returns {object} Ideal targets object
- */
-const getIdealTargets = (height, weight, activityLevel, gender, age) => {
-  const heightInMeters = height / 100;
-  const currentBMI = calculateBMI(height, weight);
-  
-  // BMI ideal range: 18.5 - 24.9
-  const minIdealWeight = Math.round(18.5 * heightInMeters * heightInMeters);
-  const maxIdealWeight = Math.round(24.9 * heightInMeters * heightInMeters);
-  const idealWeightRange = `${minIdealWeight}-${maxIdealWeight} kg`;
-  
-  // Target based on current condition
-  let targetWeight;
-  if (currentBMI < 18.5) {
-    targetWeight = Math.round(20 * heightInMeters * heightInMeters);
-  } else if (currentBMI > 24.9) {
-    targetWeight = Math.round(23 * heightInMeters * heightInMeters);
-  } else {
-    targetWeight = weight;
-  }
-  
-  const targetBMI = '21.0';
-  
-  // Target calories to reach ideal weight
-  const bmr = calculateBMR(weight, height, age, gender);
-  const activityMultiplier = getActivityMultiplier(activityLevel);
-  const maintenanceCalories = bmr * activityMultiplier;
-  
-  let targetCalories;
-  if (currentBMI < 18.5) {
-    targetCalories = Math.round(maintenanceCalories + 400);
-  } else if (currentBMI > 24.9) {
-    targetCalories = Math.round(maintenanceCalories - 400);
-  } else {
-    targetCalories = Math.round(maintenanceCalories);
-  }
-  
-  const weightDifference = Math.abs(targetWeight - weight);
-  const timeEstimate = weightDifference <= 2 ? '1-2 bulan' : 
-                     weightDifference <= 5 ? '2-4 bulan' :
-                     weightDifference <= 10 ? '4-8 bulan' : '8-12 bulan';
-  
-  return {
-    weightRange: idealWeightRange,
-    targetWeight,
-    targetBMI,
-    targetCalories,
-    timeEstimate
-  };
-};
-
-/**
- * Get activity level text in Indonesian
- * @param {string} activityLevel - Activity level key
- * @returns {string} Activity level text
- */
-const getActivityLevelText = (activityLevel) => {
-  switch (activityLevel.toLowerCase()) {
-    case 'sedentary': return 'Tidak Aktif';
-    case 'light': return 'Ringan';
-    case 'moderate': return 'Sedang';
-    case 'active': return 'Aktif';
-    case 'very_active': return 'Sangat Aktif';
-    default: return activityLevel;
-  }
-};
-
-/**
- * Process form data and calculate BMI metrics
- * @param {object} formData - Form data object
- * @returns {object} Processed BMI data
- */
-const processFormData = (formData) => {
-  const height = parseFloat(formData.height);
-  const weight = parseFloat(formData.weight);
-  const age = parseFloat(formData.age);
-  
-  const bmi = calculateBMI(height, weight);
-  const category = getBMICategory(bmi);
-  const healthStatus = getHealthStatus(bmi);
-  const bmr = calculateBMR(weight, height, age, formData.gender);
-  const targetCalories = getTargetCalories(weight, height, age, formData.gender, formData.activityLevel, bmi);
-  
-  return {
-    bmi,
-    category,
-    healthStatus,
-    targetCalories,
-    bmr
-  };
-};
-
 module.exports = {
-  // Constants
   ACTIVITY_LEVELS,
-  
-  // Core calculations
   calculateBMI,
   calculateBMR,
-  
-  // Categories and status
   getBMICategory,
   getHealthStatus,
-  
-  // Activity helpers
   getActivityMultiplier,
-  getActivityLevelText,
-  
-  // Calorie calculations
-  getTargetCalories,
-  
-  // Advanced calculations
-  getIdealTargets,
-  
-  // Data processing
-  processFormData
+  getTargetCalories
 }; 

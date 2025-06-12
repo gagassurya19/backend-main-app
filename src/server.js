@@ -9,9 +9,6 @@ const userRoutes = require('./routes/user');
 const bmiRoutes = require('./routes/bmi');
 const receiptRoutes = require('./routes/receipt');
 const historyRoutes = require('./routes/history');
-const idealTargetsRoutes = require('./routes/idealTargets');
-// const predictionRoutes = require('./routes/prediction'); // Keep if still needed
-// const healthTipRoutes = require('./routes/healthTip'); // Keep if still needed
 
 // Import database
 const { PrismaClient } = require('@prisma/client');
@@ -24,8 +21,10 @@ const init = async () => {
     routes: {
       cors: {
         origin: ['*'],
-        headers: ['Accept', 'Authorization', 'Content-Type'],
-        additionalHeaders: ['cache-control', 'x-requested-with'],
+        credentials: true,
+        headers: ['Accept', 'Authorization', 'Content-Type', 'If-None-Match', 'Accept-language'],
+        additionalHeaders: ['cache-control', 'x-requested-with', 'x-forwarded-for', 'x-real-ip'],
+        additionalExposedHeaders: ['cache-control', 'content-language', 'content-type', 'expires', 'last-modified', 'pragma']
       },
       files: {
         relativeTo: require('path').join(__dirname, '../public')
@@ -51,11 +50,19 @@ const init = async () => {
   server.route(bmiRoutes);
   server.route(receiptRoutes);
   server.route(historyRoutes);
-  server.route(idealTargetsRoutes);
-  
-  // Keep existing routes if they're still needed
-  // server.route(predictionRoutes);
-  // server.route(healthTipRoutes);
+
+  // CORS preflight handler for all routes
+  server.route({
+    method: 'OPTIONS',
+    path: '/{any*}',
+    handler: (request, h) => {
+      return h.response()
+        .code(200)
+        .header('Access-Control-Allow-Origin', '*')
+        .header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        .header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, If-None-Match, Accept-language, cache-control, x-requested-with');
+    }
+  });
 
   // Health check endpoint
   server.route({
@@ -72,22 +79,8 @@ const init = async () => {
           bmi: '/bmi/*',
           receipts: '/receipts/*',
           history: '/history/*',
-          idealTargets: '/ideal-targets/*'
         }
       };
-    }
-  });
-
-  // Handle file uploads endpoint
-  server.route({
-    method: 'GET',
-    path: '/uploads/{file*}',
-    handler: {
-      directory: {
-        path: '../uploads',
-        redirectToSlash: true,
-        index: false
-      }
     }
   });
 
@@ -100,7 +93,6 @@ const init = async () => {
   console.log('- BMI Records: /bmi/*');
   console.log('- Receipts: /receipts/*');
   console.log('- History: /history/*');
-  console.log('- Ideal Targets: /ideal-targets/*');
 };
 
 process.on('unhandledRejection', (err) => {
