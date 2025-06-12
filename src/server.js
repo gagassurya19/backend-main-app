@@ -9,6 +9,7 @@ const userRoutes = require('./routes/user');
 const bmiRoutes = require('./routes/bmi');
 const receiptRoutes = require('./routes/receipt');
 const historyRoutes = require('./routes/history');
+const dashboardRoutes = require('./routes/dashboard');
 
 // Import database
 const { PrismaClient } = require('@prisma/client');
@@ -50,7 +51,7 @@ const init = async () => {
   server.route(bmiRoutes);
   server.route(receiptRoutes);
   server.route(historyRoutes);
-
+  server.route(dashboardRoutes);
   // CORS preflight handler for all routes
   server.route({
     method: 'OPTIONS',
@@ -79,6 +80,7 @@ const init = async () => {
           bmi: '/bmi/*',
           receipts: '/receipts/*',
           history: '/history/*',
+          dashboard: '/dashboard/*',
         }
       };
     }
@@ -93,6 +95,7 @@ const init = async () => {
   console.log('- BMI Records: /bmi/*');
   console.log('- Receipts: /receipts/*');
   console.log('- History: /history/*');
+  console.log('- Dashboard: /dashboard/*');
 };
 
 process.on('unhandledRejection', (err) => {
